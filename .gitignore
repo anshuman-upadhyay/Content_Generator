@@ -1,0 +1,9 @@
+short/
+__pycache__/
+*.pyc
+.env
+
+temp/*
+output/*
+raw_videos/*
+
