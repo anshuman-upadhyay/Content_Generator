@@ -32,6 +32,7 @@ def extract_random_clip(video_path):
     command = [
         "ffmpeg",
         "-y",
+        "-threads","2",
         "-ss",str(start_time),
         "-i",str(video_path),
         "-t", str(audio_duration),

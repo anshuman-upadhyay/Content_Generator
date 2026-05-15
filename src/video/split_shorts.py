@@ -62,6 +62,7 @@ def split_video(folder):
         command = [
             "ffmpeg",
             "-y",
+            "-threads","2",
             "-i", str(video_path),
             "-ss",str(start_time),
             "-t",str(clip_duration),

@@ -1,16 +1,20 @@
+
+import time
 #Paths
 from pathlib import Path
 #get the texts
 from src.text.read_script import read_script
 # Audio arrangements
-from src.audio.tts_generator import generate_tts
+# from src.audio.tts_generator import generate_tts
+from src.audio.kokoro_tts import generate_kokoro_tts
 from src.audio.music_mixer import mix_audio
 #Video arrangement
 from src.video.random_video_picker import pick_random_video
 from src.video.clip_extractor import extract_random_clip
 from src.video.merge_audio_video import merge_audio_video
 #subtitles 
-from src.subtitles.generate_subtitles import generate_subtitles
+# from src.subtitles.generate_subtitles import generate_subtitles
+from src.subtitles.generate_faster_subtitles import generate_faster_subtitles
 from src.subtitles.burn_subtitles import burn_subtitles 
 #shorts maker
 from src.video.split_shorts import split_video
@@ -36,7 +40,11 @@ def run_pipeline():
         
         current_step = "Generating Narration"
         print(current_step)
-        generate_tts(script)
+        generate_kokoro_tts(script) #using kokoro
+        # generate_tts(script) #using gtts
+
+        print("Cooling system after TTS")
+        time.sleep(5)
         
         current_step = "Mixing background music"
         print(current_step)
@@ -53,14 +61,25 @@ def run_pipeline():
         current_step = "Merging audio + vertical video..."
         print(current_step)
         merge_audio_video(folder)
+
+        print("Cooling system after video merge")
+        time.sleep(5)
         
         current_step = "Generating subtitles..."
         print(current_step)
-        generate_subtitles()
+        generate_faster_subtitles() #whisper Faster
+        # generate_subtitles() # Whisper
+
+        print("Cooling system after subtitle generation")
+        time.sleep(5)
+
         
         current_step = "Burning subtitles.."
         print(current_step)
         burn_subtitles(folder)
+
+        print("Cooling after subtitle burning")
+        time.sleep(5)
         
         current_step = "Splitting into shorts..."
         print(current_step)

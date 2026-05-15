@@ -20,6 +20,7 @@ def merge_audio_video(folder):
     command = [
         "ffmpeg",
         "-y" ,
+        "-threads","2",
         #input video
         "-i", str(VIDEO_PATH),
         #input audio

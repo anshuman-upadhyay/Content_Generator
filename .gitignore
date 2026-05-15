@@ -3,10 +3,19 @@ __pycache__/
 *.pyc
 .env
 
+# Generated files
 temp/*
 output/*
-raw_videos/*
-assets/*
 
-.vscode/
-src/text/.vscode/
+# Raw content assets (optional if you don't want huge uploads)
+raw_videos/*
+assets/music.mp3
+assets/reference_voice.wav
+
+# Local AI models
+models/*.onnx
+models/*.bin
+
+# OS junk
+.DS_Store
+Thumbs.db

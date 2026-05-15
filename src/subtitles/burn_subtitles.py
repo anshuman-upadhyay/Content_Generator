@@ -30,6 +30,7 @@ def burn_subtitles(folder):
     command = [
         "ffmpeg",
         "-y",
+        "-threads","2",
         "-i", str(video_path),
 
         "-vf",

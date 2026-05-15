@@ -1,7 +1,7 @@
 from pathlib import Path
 from pydub import AudioSegment
 
-NARRATION_PATH = Path("temp/narration.mp3")
+NARRATION_PATH = Path("temp/narration.wav")
 MUSIC_PATH  = Path("assets/music.mp3")
 OUTPUT_PATH = Path("temp/final_audio.mp3")
 
@@ -18,7 +18,7 @@ def mix_audio():
     music = AudioSegment.from_file(MUSIC_PATH)
 
     #lower the background music volume
-    music = music - 20
+    music = music - 25
 
     #loop music if its shorter than narration
     while len(music) < len(narration) :
