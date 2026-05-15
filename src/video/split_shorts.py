@@ -60,16 +60,20 @@ def split_video(folder):
         )
 
         command = [
-            "ffmpeg",
-            "-y",
-            "-threads","2",
-            "-i", str(video_path),
-            "-ss",str(start_time),
-            "-t",str(clip_duration),
+                "ffmpeg",
+                "-y",
+                "-threads", "2",
 
-            "-c","copy",
-            str(output_file)
-        ]
+                "-ss", str(start_time),
+                "-i", str(video_path),
+            
+                "-t", str(clip_duration),
+
+                "-c:v", "libx264",
+                "-c:a", "aac",
+
+                str(output_file)
+            ]
 
         subprocess.run(
             command,

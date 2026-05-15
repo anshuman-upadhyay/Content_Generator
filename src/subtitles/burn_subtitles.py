@@ -7,7 +7,7 @@ def burn_subtitles(folder):
     """
     Burn subtitles in center of vertical video
     """
-    video_path = folder["long_folder"]/"final_video.mp4"
+    video_path = folder["long_folder"]/"overlay_video.mp4"
     output_path = folder["long_folder"]/"Finalize_work.mp4"
 
     if not video_path.exists():

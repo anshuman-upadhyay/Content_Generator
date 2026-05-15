@@ -4,6 +4,7 @@ import time
 from pathlib import Path
 #get the texts
 from src.text.read_script import read_script
+from src.text.clean_script import clean_script
 # Audio arrangements
 # from src.audio.tts_generator import generate_tts
 from src.audio.kokoro_tts import generate_kokoro_tts
@@ -12,6 +13,7 @@ from src.audio.music_mixer import mix_audio
 from src.video.random_video_picker import pick_random_video
 from src.video.clip_extractor import extract_random_clip
 from src.video.merge_audio_video import merge_audio_video
+from src.video.text_overlay import add_text_overlay
 #subtitles 
 # from src.subtitles.generate_subtitles import generate_subtitles
 from src.subtitles.generate_faster_subtitles import generate_faster_subtitles
@@ -34,6 +36,12 @@ def run_pipeline():
         current_step = "Creating OutPut Folder"
         folder = create_run_folder()
         
+        current_step= "Cleaning raw Script"
+        print(current_step)
+        clean_script()
+        print("Cooling system after script generation")
+        time.sleep(5)
+
         current_step = "Reading Script"        
         print(current_step)
         script = read_script()
@@ -64,6 +72,14 @@ def run_pipeline():
 
         print("Cooling system after video merge")
         time.sleep(5)
+
+        current_step = "Adding story overlay..."
+        print(current_step)
+        add_text_overlay(folder)
+
+        print("Cooling system after video overlay")
+        time.sleep(5)
+
         
         current_step = "Generating subtitles..."
         print(current_step)
