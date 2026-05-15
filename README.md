@@ -1,59 +1,141 @@
-# Content Generator
+# Project Reels
 
-An automated Python pipeline that converts plain text into long-form videos, YouTube Shorts, and Instagram Reels using AI narration, subtitles, and gameplay footage.
+An automated Python pipeline that transforms raw stories into ready-to-upload:
 
-This project automates the repetitive workflow of creating short-form content by combining:
+- YouTube long-form videos  
+- YouTube Shorts  
+- TikTok videos  
+- Instagram Reels  
 
-- AI narration generation
-- Background music mixing
-- Random gameplay footage selection
-- Automatic subtitles
-- Vertical formatting for reels/shorts
-- Automatic short clip generation
+using fully local AI narration, subtitles, gameplay footage, story overlays, thumbnails, and automated post-processing.
+
+This project automates the repetitive workflow of short-form storytelling content creation without paid APIs.
 
 ---
 
 # Features
 
-✅ Reads script from text file  
-✅ Converts text to speech using Kokoro ONNX  
-✅ Adds background music  
-✅ Randomly selects gameplay footage  
-✅ Extracts random clip based on narration duration  
-✅ Converts horizontal video → vertical format (9:16)  
-✅ Generates subtitles using faster-whisper  
-✅ Burns subtitles into final video  
-✅ Splits final video into short clips  
-✅ Organizes outputs by timestamped runs  
-✅ Cleans temporary files automatically  
-✅ Handles failures gracefully with cleanup system  
+## Text Processing
+
+✅ Reads stories from `input/raw_script.txt`  
+✅ Cleans formatting issues automatically  
+✅ Optional grammar correction using LanguageTool  
+✅ Validates script length before processing  
+✅ Saves cleaned output to `input/script.txt`  
 
 ---
 
-# Workflow
+## AI Narration
+
+✅ Uses Kokoro ONNX for fully local narration  
+✅ Random voice selection  
+✅ No paid APIs required  
+✅ Memory cleanup after generation  
+
+---
+
+## Audio Processing
+
+✅ Random background music selection  
+✅ Automatic volume balancing  
+✅ Music looping  
+✅ Audio trimming  
+
+---
+
+## Video Processing
+
+✅ Random gameplay selection  
+✅ Random clip extraction  
+✅ Horizontal → vertical conversion (9:16)  
+✅ Audio/video merging  
+✅ Story overlay generation  
+✅ Subtitle burning  
+✅ Automatic Shorts splitting  
+
+---
+
+# Story Overlay System
+
+Automatically generates:
+
+✅ Rounded story cards  
+✅ Shadow effects  
+✅ Random fonts  
+✅ Hook previews  
+✅ Optimized positioning above subtitles  
+
+---
+
+# Subtitles
+
+✅ Uses faster-whisper for subtitle generation  
+✅ Automatically burns subtitles into final videos  
+
+---
+
+# Thumbnail Generation
+
+✅ Auto-generates thumbnails for every run  
+
+---
+
+# Metadata Logging
+
+Every run saves:
+
+- gameplay used  
+- music used  
+- font used  
+- voice used  
+- script length  
+- runtime metadata  
+
+---
+
+# Cleanup System
+
+✅ Removes temporary files automatically  
+✅ Handles failures gracefully  
+
+---
+
+# Full Workflow
 
 ```text
-input/script.txt
+raw_script.txt
       ↓
-Read Script
+Script Cleaning
       ↓
-Kokoro TTS Narration
+Script Validation
       ↓
-Background Music Mixing
+Random Voice Selection
+      ↓
+Kokoro Narration
+      ↓
+Random Music Selection
+      ↓
+Audio Mixing
       ↓
 Random Gameplay Selection
       ↓
 Random Clip Extraction
       ↓
-Vertical Video Conversion
+Vertical Conversion
       ↓
 Audio + Video Merge
+      ↓
+Story Overlay
       ↓
 Subtitle Generation
       ↓
 Subtitle Burning
       ↓
 Short Generation
+      ↓
+Thumbnail Generation
+      ↓
+Metadata Logging
       ↓
 Cleanup
 ```
@@ -63,17 +145,17 @@ Cleanup
 # Project Structure
 
 ```bash
-Content_Generator/
-│
-├── input/
-│   ├── script.txt
-│   └── config.json
-│
-├── raw_videos/
+Project_Reels/
 │
 ├── assets/
-│   ├── music.mp3
-│   └── reference_voice.wav
+│   ├── fonts/
+│   ├── gameplay/
+│   └── music/
+│
+├── input/
+│   ├── raw_script.txt
+│   ├── script.txt
+│   └── config.json
 │
 ├── models/
 │   ├── kokoro-v1.0.onnx
@@ -82,19 +164,20 @@ Content_Generator/
 ├── output/
 │   └── run_timestamp/
 │       ├── long/
-│       └── shorts/
+│       ├── shorts/
+│       ├── thumbnail.png
+│       └── metadata.json
 │
 ├── temp/
 │
 ├── src/
 │   ├── audio/
+│   ├── pipeline/
 │   ├── subtitles/
 │   ├── text/
 │   ├── utils/
-│   ├── video/
-│   └── pipeline/
+│   └── video/
 │
-├── tests/
 ├── main.py
 └── requirements.txt
 ```
@@ -106,8 +189,8 @@ Content_Generator/
 Clone repository:
 
 ```bash
-git clone https://github.com/anshuman-upadhyay/Content_Generator.git
-cd Content_Generator
+git clone https://github.com/anshuman-upadhyay/Project_Reels.git
+cd Project_Reels
 ```
 
 Create virtual environment:
@@ -127,7 +210,11 @@ pip install -r requirements.txt
 
 # Model Setup
 
-Download Kokoro model files and place them inside:
+Download Kokoro ONNX model files from:
+
+https://github.com/thewh1teagle/kokoro-onnx
+
+Place inside:
 
 ```bash
 models/
@@ -138,46 +225,53 @@ Required files:
 - `kokoro-v1.0.onnx`
 - `voices-v1.0.bin`
 
-For Kokoro ONNX:
-
-[Kokoro ONNX GitHub](https://github.com/thewh1teagle/kokoro-onnx?utm_source=chatgpt.com)
-
 ---
 
 # Required Inputs
 
-## Script
+## Stories
 
-Add narration text:
+Paste story content inside:
 
 ```bash
-input/script.txt
+input/raw_script.txt
 ```
 
 ---
 
 ## Gameplay Videos
 
-Add gameplay clips inside:
+Add gameplay footage inside:
 
 ```bash
-raw_videos/
+assets/gameplay/
 ```
 
-Example:
+Examples:
 
-- :contentReference[oaicite:3]{index=3} parkour gameplay
-- satisfying gameplay footage
-- looping gameplay clips
+- Minecraft parkour  
+- Subway Surfers  
+- Satisfying clips  
+- Loopable gameplay footage  
 
 ---
 
 ## Background Music
 
-Add music file:
+Add music files inside:
 
 ```bash
-assets/music.mp3
+assets/music/
+```
+
+---
+
+## Fonts
+
+Add fonts inside:
+
+```bash
+assets/fonts/
 ```
 
 ---
@@ -192,62 +286,38 @@ python main.py
 
 # Output
 
-Generated content is stored in:
+Each run creates:
 
 ```bash
 output/run_timestamp/
 ```
 
-Structure:
+Containing:
 
-```bash
-output/
-└── run_timestamp/
-    ├── long/
-    │   └── Finalize_work.mp4
-    │
-    └── shorts/
-        ├── short_1.mp4
-        ├── short_2.mp4
-        └── short_n.mp4
-```
+- final long-form video  
+- short-form clips  
+- thumbnail  
+- metadata logs  
+
+---
+
+# Future V2 Ideas
+
+- Reddit scraping automation  
+- Automated upload system  
+- Better thumbnail generation  
+- AI-generated hooks  
+- Multi-language narration  
+- Analytics dashboard  
+- Multi-niche expansion  
 
 ---
 
 # Tech Stack
 
 - Python  
-- :contentReference[oaicite:4]{index=4}  
-- :contentReference[oaicite:5]{index=5}  
-- :contentReference[oaicite:6]{index=6}  
-- :contentReference[oaicite:7]{index=7}  
-
----
-
-# Current Limitations
-
-- Manual script input  
-- Manual gameplay sourcing  
-- Manual uploads to platforms  
-- Fixed subtitle styling  
-- Fixed vertical crop logic  
-
----
-
-# Future Improvements
-
-- Voice cloning support  
-- AI script generation using :contentReference[oaicite:8]{index=8}  
-- Auto upload to :contentReference[oaicite:9]{index=9}  
-- Auto upload to :contentReference[oaicite:10]{index=10}  
-- Better subtitle animations  
-- Smarter gameplay cropping  
-- Web dashboard for one-click generation  
-
----
-
-# Author
-
-**Anshuman Upadhyay**
-
-GitHub: [Anshuman Upadhyay GitHub](https://github.com/anshuman-upadhyay?utm_source=chatgpt.com)
+- FFmpeg  
+- Kokoro ONNX  
+- faster-whisper  
+- Pillow  
+- LanguageTool

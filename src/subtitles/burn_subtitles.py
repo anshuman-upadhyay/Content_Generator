@@ -1,28 +1,67 @@
 from pathlib import Path
 import subprocess
+from src.utils.random_font_picker import pick_random_font
+
 
 SUBTITLE_PATH = Path("temp/subtitles.srt")
 
+
 def burn_subtitles(folder):
     """
-    Burn subtitles in center of vertical video
+    Burn subtitles into final video
     """
-    video_path = folder["long_folder"]/"overlay_video.mp4"
-    output_path = folder["long_folder"]/"Finalize_work.mp4"
+
+    video_path = folder["long_folder"] / "overlay_video.mp4"
+    output_path = folder["long_folder"] / "Finalize_work.mp4"
 
     if not video_path.exists():
-        raise FileNotFoundError("Final video not found")
+        raise FileNotFoundError(
+            "Overlay video not found"
+        )
 
     if not SUBTITLE_PATH.exists():
-        raise FileNotFoundError("Subtitle file not found")
+        raise FileNotFoundError(
+            "Subtitle file not found"
+        )
+
+    # pick random font
+    selected_font = pick_random_font()
+    font_name = selected_font.stem
+
+    # avoid unreadable decorative fonts
+    banned_fonts = [
+        "ArianaVioleta",
+        "HappySwirly",
+        "CookieCrisp",
+        "ShinyCrystal",
+        "BrownieStencil",
+        "ShadeBlue"
+    ]
+
+    for bad_font in banned_fonts:
+        if bad_font.lower() in font_name.lower():
+            print(
+                f"{font_name} skipped for subtitles "
+                f"(too decorative)"
+            )
+
+            # fallback safe font
+            font_name = "Arial"
+            break
+
+    print(
+        f"Subtitle font selected: {font_name}"
+    )
 
     subtitle_style = (
-        "Fontsize=12,"
+        f"FontName={font_name},"
+        "Fontsize=14,"
         "PrimaryColour=&HFFFFFF&,"
         "OutlineColour=&H000000&,"
         "BorderStyle=1,"
-        "Outline=2,"
-        "Shadow=1,"
+        "Outline=3,"
+        "Shadow=2,"
+        "Bold=1,"
         "Alignment=2,"
         "MarginV=100"
     )
@@ -30,7 +69,7 @@ def burn_subtitles(folder):
     command = [
         "ffmpeg",
         "-y",
-        "-threads","2",
+        "-threads", "2",
         "-i", str(video_path),
 
         "-vf",
@@ -40,13 +79,18 @@ def burn_subtitles(folder):
         str(output_path)
     ]
 
-    subprocess.run(command, check=True)
+    subprocess.run(
+        command,
+        check=True
+    )
 
-    #delete original non subtitle version
+    # delete old overlay video
     video_path.unlink()
 
-    print(f"Final subtitle video saved at {output_path}")
+    print(
+        f"Final subtitle video saved at {output_path}"
+    )
 
 
 if __name__ == "__main__":
-    print("Buring Subtitles")
+    print("Burning subtitles")

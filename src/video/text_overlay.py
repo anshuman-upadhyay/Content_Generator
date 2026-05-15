@@ -2,6 +2,7 @@ from pathlib import Path
 from PIL import Image, ImageDraw, ImageFont
 import textwrap
 import subprocess
+from src.utils.random_font_picker import pick_random_font
 
 
 SCRIPT_PATH = Path("input/script.txt")
@@ -10,16 +11,14 @@ CARD_PATH = Path("temp/overlays/story_card.png")
 
 def get_story_preview():
     """
-    Extract shorter preview text for cleaner overlay
+    Extract preview text for story card
     """
     text = SCRIPT_PATH.read_text(
         encoding="utf-8"
     ).strip()
 
-    # shorter preview so box doesn't become overcrowded
     preview = text[:110]
 
-    # tighter wrapping for better readability
     wrapped = textwrap.fill(
         preview,
         width=22
@@ -27,13 +26,18 @@ def get_story_preview():
 
     return wrapped
 
+
 def create_story_card():
-    CARD_PATH.parent.mkdir(exist_ok=True)
+    """
+    Create story card and return selected font
+    """
+    CARD_PATH.parent.mkdir(
+        exist_ok=True
+    )
 
     width = 850
     height = 320
 
-    # transparent base canvas
     image = Image.new(
         "RGBA",
         (width, height),
@@ -49,20 +53,23 @@ def create_story_card():
         fill=(0, 0, 0, 120)
     )
 
-    # main card layer
+    # main card
     draw.rounded_rectangle(
         [(0, 0), (width-30, height-30)],
         radius=35,
         fill=(15, 15, 35, 245)
     )
 
+    # random font selection
+    selected_font = pick_random_font()
+
     font_title = ImageFont.truetype(
-        "assets/fonts/arial.ttf",
+        str(selected_font),
         58
     )
 
     font_body = ImageFont.truetype(
-        "assets/fonts/arial.ttf",
+        str(selected_font),
         44
     )
 
@@ -94,9 +101,14 @@ def create_story_card():
 
     print("Improved story card created")
 
+    # return font for metadata logging
+    return selected_font.name
+
+
 def add_text_overlay(folder):
     """
     Overlay story card onto final video
+    and return selected font
     """
 
     input_video = (
@@ -114,22 +126,19 @@ def add_text_overlay(folder):
             "final_video.mp4 not found"
         )
 
-    create_story_card()
+    # capture selected font
+    selected_font_name = create_story_card()
 
     command = [
         "ffmpeg",
         "-y",
-
         "-i", str(input_video),
         "-i", str(CARD_PATH),
 
         "-filter_complex",
-
-        # moved lower → directly above subtitles
         "overlay=(main_w-overlay_w)/2:650",
 
         "-c:a", "copy",
-
         str(output_video)
     ]
 
@@ -138,10 +147,13 @@ def add_text_overlay(folder):
         check=True
     )
 
-    # remove old video after overlay
     input_video.unlink()
 
-    print("Overlay video created successfully")
+    print(
+        "Overlay video created successfully"
+    )
+
+    return selected_font_name
 
 
 if __name__ == "__main__":

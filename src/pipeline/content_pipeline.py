@@ -1,132 +1,230 @@
-
 import time
-#Paths
 from pathlib import Path
-#get the texts
+
+# Text
 from src.text.read_script import read_script
 from src.text.clean_script import clean_script
-# Audio arrangements
-# from src.audio.tts_generator import generate_tts
+from src.text.validate_script import validate_script
+
+# Audio
 from src.audio.kokoro_tts import generate_kokoro_tts
 from src.audio.music_mixer import mix_audio
-#Video arrangement
+
+# Video
 from src.video.random_video_picker import pick_random_video
 from src.video.clip_extractor import extract_random_clip
 from src.video.merge_audio_video import merge_audio_video
 from src.video.text_overlay import add_text_overlay
-#subtitles 
-# from src.subtitles.generate_subtitles import generate_subtitles
-from src.subtitles.generate_faster_subtitles import generate_faster_subtitles
-from src.subtitles.burn_subtitles import burn_subtitles 
-#shorts maker
 from src.video.split_shorts import split_video
+from src.video.generate_thumbnail import generate_thumbnail
 
-#folder structure
+# Subtitles
+from src.subtitles.generate_faster_subtitles import (
+    generate_faster_subtitles
+)
+from src.subtitles.burn_subtitles import burn_subtitles
+
+# Utils
 from src.utils.file_manager import create_run_folder
-
-#cleanup
 from src.utils.cleanup import cleanup_temp_file
+from src.utils.logger import save_metadata
 
+
+COOLDOWN_TIME = 5
+
+
+def cooldown():
+    """
+    Prevent laptop overheating/crashes
+    """
+    print(f"Cooling system for {COOLDOWN_TIME} seconds...\n")
+    time.sleep(COOLDOWN_TIME)
+
+
+def run_step(step_name, function, *args):
+    """
+    Standardized step runner
+    """
+    print(f"\n{'='*50}")
+    print(f"{step_name}")
+    print(f"{'='*50}")
+
+    result = function(*args)
+
+    return result
+
+
+def clear_processed_script():
+    """
+    Clear processed script after pipeline success
+    """
+    script_path = Path("input/script.txt")
+
+    if script_path.exists():
+        script_path.write_text("")
+        print("Processed script cleared")
 
 
 def run_pipeline():
-    current_step = "Initialization"
     folder = None
-    try :
-        current_step = "Creating OutPut Folder"
-        folder = create_run_folder()
-        
-        current_step= "Cleaning raw Script"
-        print(current_step)
-        clean_script()
-        print("Cooling system after script generation")
-        time.sleep(5)
+    current_step = "Initialization"
 
-        current_step = "Reading Script"        
-        print(current_step)
-        script = read_script()
-        
+    try:
+        # --------------------------
+        # TEXT PROCESSING
+        # --------------------------
+        current_step = "Cleaning Script"
+        run_step(current_step, clean_script)
+        cooldown()
+
+        current_step = "Reading Script"
+        script = run_step(current_step, read_script)
+
+        current_step = "Validating Script"
+        # run_step(current_step, validate_script, script)
+
+        # Create folders ONLY after validation passes
+        current_step = "Creating Output Folder"
+        folder = run_step(current_step, create_run_folder)
+
+        # --------------------------
+        # AUDIO PROCESSING
+        # --------------------------
         current_step = "Generating Narration"
-        print(current_step)
-        generate_kokoro_tts(script) #using kokoro
-        # generate_tts(script) #using gtts
+        selected_voice = run_step(
+            current_step,
+            generate_kokoro_tts,
+            script
+        )
+        cooldown()
 
-        print("Cooling system after TTS")
-        time.sleep(5)
-        
-        current_step = "Mixing background music"
-        print(current_step)
-        mix_audio()
-        
-        current_step = "Picking Random gameplay video"
-        print(current_step)
-        selected_video = pick_random_video()
-        
-        current_step = "Extracting random clip"
-        print(current_step)
-        extract_random_clip(selected_video)
-        
-        current_step = "Merging audio + vertical video..."
-        print(current_step)
-        merge_audio_video(folder)
+        current_step = "Mixing Background Music"
+        run_step(current_step, mix_audio)
 
-        print("Cooling system after video merge")
-        time.sleep(5)
+        # --------------------------
+        # VIDEO PROCESSING
+        # --------------------------
+        current_step = "Picking Gameplay Video"
+        selected_video = run_step(
+            current_step,
+            pick_random_video
+        )
 
-        current_step = "Adding story overlay..."
-        print(current_step)
-        add_text_overlay(folder)
+        current_step = "Extracting Random Clip"
+        run_step(
+            current_step,
+            extract_random_clip,
+            selected_video
+        )
 
-        print("Cooling system after video overlay")
-        time.sleep(5)
+        current_step = "Merging Audio + Video"
+        run_step(
+            current_step,
+            merge_audio_video,
+            folder
+        )
+        cooldown()
 
+        current_step = "Adding Story Overlay"
+        selected_font = run_step(
+            current_step,
+            add_text_overlay,
+            folder
+        )
+
+        cooldown()
+
+        # --------------------------
+        # SUBTITLE PROCESSING
+        # --------------------------
+        current_step = "Generating Subtitles"
+        run_step(
+            current_step,
+            generate_faster_subtitles
+        )
+        cooldown()
+
+        current_step = "Burning Subtitles"
+        run_step(
+            current_step,
+            burn_subtitles,
+            folder
+        )
+        cooldown()
+
+        # --------------------------
+        # SHORTS CREATION
+        # --------------------------
+        current_step = "Splitting Shorts"
+        run_step(
+            current_step,
+            split_video,
+            folder
+        )
+
+        # --------------------------
+        # METADATA LOGGING
+        # --------------------------
+        current_step = "Saving Metadata"
+
+        metadata = {
+            "script_words": len(script.split()),
+            "gameplay_used": selected_video.name,
+            "font_used": selected_font,
+            "voice_used": selected_voice
+        }
+
+        run_step(
+            current_step,
+            save_metadata,
+            folder,
+            metadata
+        )
+
+        # --------------------------
+        # THUMBNAIL GENERATION
+        # --------------------------
+        current_step = "Generating Thumbnail"
         
-        current_step = "Generating subtitles..."
-        print(current_step)
-        generate_faster_subtitles() #whisper Faster
-        # generate_subtitles() # Whisper
+        run_step(
+            current_step,
+            generate_thumbnail,
+            folder
+        )
 
-        print("Cooling system after subtitle generation")
-        time.sleep(5)
 
-        
-        current_step = "Burning subtitles.."
-        print(current_step)
-        burn_subtitles(folder)
 
-        print("Cooling after subtitle burning")
-        time.sleep(5)
-        
-        current_step = "Splitting into shorts..."
-        print(current_step)
-        split_video(folder)
 
-        
-        current_step = "Cleaning Temporary Files"
-        print(current_step)
-        cleanup_temp_file()
-        
-        current_step = "Clearing old Script"
-        print(current_step)
-        Path("input/script.txt").write_text("")
+
+        # --------------------------
+        # CLEANUP
+        # --------------------------
+        current_step = "Cleaning Temp Files"
+        run_step(
+            current_step,
+            cleanup_temp_file
+        )
+
+        current_step = "Clearing Script"
+        run_step(
+            current_step,
+            clear_processed_script
+        )
 
         print("\nPipeline completed successfully!")
-    except Exception as e :
-        print(f"\nPipeline failed during : {current_step}")
+
+    except Exception as e:
+        print(f"\nPipeline failed during: {current_step}")
         print(f"Error: {e}")
-        if  folder:
+
+        if folder:
             print(
-                f"Partial generated files are here: \n "
+                f"\nPartial files saved at:\n"
                 f"{folder['run_folder']}"
-                )
-        if Path("temp").exists():
-            cleanup_temp_file()
+            )
 
-            
+        cleanup_temp_file()
 
 
-
-        
-
-    
-
+if __name__ == "__main__":
+    run_pipeline()

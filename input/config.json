@@ -2,8 +2,18 @@
     "short_duration": 90,
     "subtitle_font_size": 12,
     "music_volume": 0.2,
+
     "use_advanced_grammar_correction": true,
+
     "random_music": true,
     "random_fonts": true,
-    "random_voice_samples": false
+    "random_voice_samples": false,
+
+    "story_preview_length": 180,
+    "overlay_y_position": 650,
+
+    "card_width": 850,
+    "card_height": 320,
+
+    "min_script_words": 50
 }
