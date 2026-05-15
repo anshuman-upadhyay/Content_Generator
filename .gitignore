@@ -1,20 +1,33 @@
+# Virtual environments
 short/
-__pycache__/
-*.pyc
+venv/
 .env
 
-# Generated files
+# Python cache
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Generated runtime files
 temp/*
 output/*
-
-# Raw content assets (optional if you don't want huge uploads)
 raw_videos/*
-assets/music.mp3
-assets/reference_voice.wav
 
-# Local AI models
+# Local media assets (do not upload)
+assets/*
+
+
+# Ignore local AI models
 models/*.onnx
 models/*.bin
+
+# Logs
+*.log
+
+# IDE files
+.vscode/
+.idea/
 
 # OS junk
 .DS_Store
