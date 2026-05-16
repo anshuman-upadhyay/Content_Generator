@@ -1,34 +1,69 @@
-# Virtual environments
-short/
-venv/
-.env
-
-# Python cache
+# --------------------------
+# Python
+# --------------------------
 __pycache__/
 *.pyc
 *.pyo
 *.pyd
+*.log
+*.tmp
+*.swp
 
-# Generated runtime files
-temp/*
-output/*
+# Virtual environments
+short/
+venv/
+.env/
+
+# --------------------------
+# OS files
+# --------------------------
+.DS_Store
+Thumbs.db
+
+# --------------------------
+# Temp pipeline outputs
+# --------------------------
+temp/
+input/script.json
+
+# raw script input should stay local
+input/raw_script.txt
+
+# --------------------------
+# Generated outputs
+# --------------------------
+output/
+
+# --------------------------
+# Models (large files)
+# --------------------------
+models/
+*.onnx
+*.bin
+
+# --------------------------
+# Large media assets
+# --------------------------
+assets/*
 raw_videos/*
 
-# Local media assets (do not upload)
-assets/*
+# optional:
+# keep fonts if you want them version controlled
+# comment this if you want fonts uploaded
+# assets/fonts/
 
-
-# Ignore local AI models
-models/*.onnx
-models/*.bin
-
-# Logs
-*.log
-
+# --------------------------
 # IDE files
+# --------------------------
 .vscode/
 .idea/
 
-# OS junk
-.DS_Store
-Thumbs.db
+# --------------------------
+# Jupyter
+# --------------------------
+.ipynb_checkpoints/
+
+# --------------------------
+# Secrets
+# --------------------------
+.env

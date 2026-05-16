@@ -3,6 +3,7 @@ from pathlib import Path
 
 # Text
 from src.text.read_script import read_script
+from src.text.split_raw_script import split_raw_script
 from src.text.clean_script import clean_script
 from src.text.validate_script import validate_script
 
@@ -73,6 +74,11 @@ def run_pipeline():
         # --------------------------
         # TEXT PROCESSING
         # --------------------------
+        current_step = "Splitting Raw Script"
+        run_step(
+            current_step,
+            split_raw_script
+        )
         current_step = "Cleaning Script"
         run_step(current_step, clean_script)
         cooldown()
@@ -81,7 +87,7 @@ def run_pipeline():
         script = run_step(current_step, read_script)
 
         current_step = "Validating Script"
-        # run_step(current_step, validate_script, script)
+        run_step(current_step, validate_script, script)
 
         # Create folders ONLY after validation passes
         current_step = "Creating Output Folder"

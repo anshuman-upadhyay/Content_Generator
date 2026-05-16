@@ -1,13 +1,13 @@
 from pathlib import Path
 import re
 import gc
+import json
 import language_tool_python
 
 from src.utils.config_reader import load_config
 
 
-RAW_SCRIPT_PATH = Path("input/raw_script.txt")
-FINAL_SCRIPT_PATH = Path("input/script.txt")
+SCRIPT_JSON_PATH = Path("input/script.json")
 
 
 def basic_cleanup(text):
@@ -24,20 +24,19 @@ def basic_cleanup(text):
     text = re.sub(r"\.{2,}", ".", text)
     text = re.sub(r",{2,}", ",", text)
 
-    # capitalize first character
+    # capitalize first letter
     if text:
         text = text[0].upper() + text[1:]
 
     # capitalize after punctuation
     text = re.sub(
         r'([.!?]\s+)([a-z])',
-        lambda m: m.group(1) + m.group(2).upper(),
+        lambda m: (
+            m.group(1) +
+            m.group(2).upper()
+        ),
         text
     )
-
-    # ensure ending punctuation
-    if text and text[-1] not in ".!?":
-        text += "."
 
     return text.strip()
 
@@ -47,63 +46,104 @@ def advanced_cleanup(text):
     Grammar correction using LanguageTool
     """
 
-    print("Running advanced grammar correction...")
+    print(
+        "Running advanced grammar correction..."
+    )
 
-    tool = language_tool_python.LanguageTool("en-US")
+    tool = language_tool_python.LanguageTool(
+        "en-US"
+    )
 
     corrected_text = tool.correct(text)
 
-    # cleanup LanguageTool process
+    # cleanup
     tool.close()
     del tool
     gc.collect()
 
-    print("LanguageTool cleanup completed")
+    print(
+        "LanguageTool cleanup completed"
+    )
 
     return corrected_text
 
 
 def clean_script():
     """
-    Main script cleaning pipeline
+    Clean title + content separately
+    inside script.json
     """
 
     config = load_config()
 
-    if not RAW_SCRIPT_PATH.exists():
+    if not SCRIPT_JSON_PATH.exists():
         raise FileNotFoundError(
-            "raw_script.txt not found"
+            "script.json not found"
         )
 
-    raw_text = RAW_SCRIPT_PATH.read_text(
+    with open(
+        SCRIPT_JSON_PATH,
+        "r",
         encoding="utf-8"
-    ).strip()
+    ) as f:
+        data = json.load(f)
 
-    if not raw_text:
+    title = data.get("title", "").strip()
+    content = data.get("content", "").strip()
+
+    if not title:
         raise ValueError(
-            "raw_script.txt is empty"
+            "Title missing in script.json"
         )
 
-    print("Running basic cleanup...")
+    if not content:
+        raise ValueError(
+            "Content missing in script.json"
+        )
 
-    cleaned_text = basic_cleanup(raw_text)
+    print(
+        "Running basic cleanup..."
+    )
+
+    cleaned_title = basic_cleanup(
+        title
+    )
+
+    cleaned_content = basic_cleanup(
+        content
+    )
 
     if config.get(
         "use_advanced_grammar_correction",
         False
     ):
-        cleaned_text = advanced_cleanup(
-            cleaned_text
+        cleaned_title = advanced_cleanup(
+            cleaned_title
         )
 
-    FINAL_SCRIPT_PATH.write_text(
-        cleaned_text,
+        cleaned_content = advanced_cleanup(
+            cleaned_content
+        )
+
+    cleaned_data = {
+        "title": cleaned_title,
+        "content": cleaned_content
+    }
+
+    with open(
+        SCRIPT_JSON_PATH,
+        "w",
         encoding="utf-8"
-    )
+    ) as f:
+        json.dump(
+            cleaned_data,
+            f,
+            indent=4
+        )
 
     print(
-        f"Final cleaned script saved to "
-        f"{FINAL_SCRIPT_PATH}"
+        f"Cleaned script saved to "
+        f"{SCRIPT_JSON_PATH}"
     )
 
 

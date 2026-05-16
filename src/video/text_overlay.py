@@ -2,41 +2,77 @@ from pathlib import Path
 from PIL import Image, ImageDraw, ImageFont
 import textwrap
 import subprocess
+import json
+
 from src.utils.random_font_picker import pick_random_font
 
 
-SCRIPT_PATH = Path("input/script.txt")
+SCRIPT_PATH = Path("input/script.json")
 CARD_PATH = Path("temp/overlays/story_card.png")
 
 
-def get_story_preview():
+def get_story_title():
     """
-    Extract preview text for story card
+    Read only title from script.json
     """
-    text = SCRIPT_PATH.read_text(
+    if not SCRIPT_PATH.exists():
+        raise FileNotFoundError(
+            "script.json not found"
+        )
+
+    with open(
+        SCRIPT_PATH,
+        "r",
         encoding="utf-8"
+    ) as file:
+        data = json.load(file)
+
+    title = data.get(
+        "title",
+        ""
     ).strip()
 
-    preview = text[:110]
+    if not title:
+        raise ValueError(
+            "Title missing in script.json"
+        )
 
-    wrapped = textwrap.fill(
-        preview,
-        width=22
+    # truncate extreme titles
+    if len(title) > 120:
+        title = title[:120] + "..."
+
+    wrapped_title = textwrap.fill(
+        title,
+        width=28
     )
 
-    return wrapped
+    return wrapped_title
 
 
 def create_story_card():
     """
-    Create story card and return selected font
+    Create title-only story card
     """
     CARD_PATH.parent.mkdir(
         exist_ok=True
     )
 
-    width = 850
-    height = 320
+    title_text = get_story_title()
+
+    title_lines = (
+        title_text.count("\n") + 1
+    )
+
+    width = 900
+
+    # Much smaller card now
+    base_height = 180
+    line_height = 55
+
+    height = (
+        base_height +
+        (title_lines * line_height)
+    )
 
     image = Image.new(
         "RGBA",
@@ -46,71 +82,68 @@ def create_story_card():
 
     draw = ImageDraw.Draw(image)
 
-    # shadow layer
+    # shadow
     draw.rounded_rectangle(
-        [(20, 20), (width-10, height-10)],
+        [
+            (20, 20),
+            (width - 10, height - 10)
+        ],
         radius=35,
-        fill=(0, 0, 0, 120)
+        fill=(0, 0, 0, 180)
     )
 
     # main card
     draw.rounded_rectangle(
-        [(0, 0), (width-30, height-30)],
+        [
+            (0, 0),
+            (width - 30, height - 30)
+        ],
         radius=35,
         fill=(15, 15, 35, 245)
     )
 
-    # random font selection
     selected_font = pick_random_font()
+
+    font_header = ImageFont.truetype(
+        str(selected_font),
+        46
+    )
 
     font_title = ImageFont.truetype(
         str(selected_font),
-        58
+        40
     )
 
-    font_body = ImageFont.truetype(
-        str(selected_font),
-        44
-    )
-
-    preview = get_story_preview()
-
-    if len(preview) > 170:
-        preview = preview[:170] + "....."
-
-    preview = textwrap.fill(
-        preview,
-        width=28
-    )
-
+    # Header
     draw.text(
         (50, 35),
-        "STORY TIME",
+        "🔥 STORY TIME",
         fill="white",
-        font=font_title
+        font=font_header
     )
 
-    draw.text(
-        (50, 125),
-        preview,
-        fill=(230, 230, 230),
-        font=font_body
+    # Title only
+    draw.multiline_text(
+        (50, 120),
+        title_text,
+        fill="white",
+        font=font_title,
+        spacing=20
     )
 
     image.save(CARD_PATH)
 
-    print("Improved story card created")
+    print(
+        "Title-only story card created"
+    )
 
-    # return font for metadata logging
     return selected_font.name
 
 
 def add_text_overlay(folder):
     """
-    Overlay story card onto final video
-    and return selected font
+    Overlay story card
     """
-
     input_video = (
         folder["long_folder"] /
         "final_video.mp4"
@@ -126,7 +159,6 @@ def add_text_overlay(folder):
             "final_video.mp4 not found"
         )
 
-    # capture selected font
     selected_font_name = create_story_card()
 
     command = [
@@ -136,7 +168,9 @@ def add_text_overlay(folder):
         "-i", str(CARD_PATH),
 
         "-filter_complex",
-        "overlay=(main_w-overlay_w)/2:650",
+
+        # upper-middle placement
+        "overlay=(main_w-overlay_w)/2:350",
 
         "-c:a", "copy",
         str(output_video)
@@ -158,5 +192,6 @@ def add_text_overlay(folder):
 
 if __name__ == "__main__":
     print(
-        "Run this through pipeline"
+        "Run through pipeline"
     )
+    

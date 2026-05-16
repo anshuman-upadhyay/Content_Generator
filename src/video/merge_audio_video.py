@@ -27,7 +27,7 @@ def merge_audio_video(folder):
         "-i", str(AUDIO_PATH),
         #crop horizontal video -> vertical center crop
         "-vf",
-        "crop = 405:720:437:0,scale  = 1080:1920",
+        "crop=in_h*9/16:in_h:(in_w-in_h*9/16)/2:0,scale=1080:1920",
         #encode video
         "-c:v", "libx264",
         #encode audio

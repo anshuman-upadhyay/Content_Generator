@@ -11,8 +11,15 @@ def burn_subtitles(folder):
     Burn subtitles into final video
     """
 
-    video_path = folder["long_folder"] / "overlay_video.mp4"
-    output_path = folder["long_folder"] / "Finalize_work.mp4"
+    video_path = (
+        folder["long_folder"] /
+        "overlay_video.mp4"
+    )
+
+    output_path = (
+        folder["long_folder"] /
+        "Finalize_work.mp4"
+    )
 
     if not video_path.exists():
         raise FileNotFoundError(
@@ -24,28 +31,28 @@ def burn_subtitles(folder):
             "Subtitle file not found"
         )
 
-    # pick random font
+    # Random subtitle font
     selected_font = pick_random_font()
     font_name = selected_font.stem
 
-    # avoid unreadable decorative fonts
+    # Prevent ugly fonts in subtitles
     banned_fonts = [
         "ArianaVioleta",
         "HappySwirly",
         "CookieCrisp",
         "ShinyCrystal",
         "BrownieStencil",
-        "ShadeBlue"
+        "ShadeBlue",
+        "04B"
     ]
 
     for bad_font in banned_fonts:
         if bad_font.lower() in font_name.lower():
             print(
                 f"{font_name} skipped for subtitles "
-                f"(too decorative)"
+                f"(unreadable)"
             )
 
-            # fallback safe font
             font_name = "Arial"
             break
 
@@ -55,7 +62,7 @@ def burn_subtitles(folder):
 
     subtitle_style = (
         f"FontName={font_name},"
-        "Fontsize=14,"
+        "Fontsize=12,"
         "PrimaryColour=&HFFFFFF&,"
         "OutlineColour=&H000000&,"
         "BorderStyle=1,"
@@ -63,8 +70,10 @@ def burn_subtitles(folder):
         "Shadow=2,"
         "Bold=1,"
         "Alignment=2,"
-        "MarginV=100"
-    )
+
+        # moved lower to avoid card collision
+        "MarginV=80"
+                )
 
     command = [
         "ffmpeg",
@@ -73,7 +82,10 @@ def burn_subtitles(folder):
         "-i", str(video_path),
 
         "-vf",
-        f"subtitles={SUBTITLE_PATH}:force_style='{subtitle_style}'",
+        (
+            f"subtitles={SUBTITLE_PATH}:"
+            f"force_style='{subtitle_style}'"
+        ),
 
         "-c:a", "copy",
         str(output_path)
@@ -84,11 +96,12 @@ def burn_subtitles(folder):
         check=True
     )
 
-    # delete old overlay video
+    # cleanup previous file
     video_path.unlink()
 
     print(
-        f"Final subtitle video saved at {output_path}"
+        f"Final subtitle video saved at "
+        f"{output_path}"
     )
 
 

@@ -1,26 +1,49 @@
 from pathlib import Path
-SCRIPT_PATH = Path("input/script.txt") # take the input script
+import json
+
+
+SCRIPT_PATH = Path("input/script.json")
+
 
 def read_script():
     """
-    Reads the scripts text from input/script.txt
+    Reads narration content
+    from script.json
     """
-    if not SCRIPT_PATH.exists():
-        raise FileExistsError(
-            f"Script File Not found at {SCRIPT_PATH}"
-        )
-    
-    with open(SCRIPT_PATH,"r",encoding="utf-8") as file :
-        content = file.read().strip()
 
-    if not content :
-        raise ValueError("Script.txt is empty .Please add narration text")
-    
+    if not SCRIPT_PATH.exists():
+        raise FileNotFoundError(
+            f"script.json not found at "
+            f"{SCRIPT_PATH}"
+        )
+
+    with open(
+        SCRIPT_PATH,
+        "r",
+        encoding="utf-8"
+    ) as file:
+        data = json.load(file)
+
+    content = data.get(
+        "content",
+        ""
+    ).strip()
+
+    if not content:
+        raise ValueError(
+            "Story content is empty "
+            "inside script.json"
+        )
+
     return content
 
 
-if __name__== "__main__":
-    script= read_script()
-    print("Script Loaded Success : \n")
+if __name__ == "__main__":
+    script = read_script()
+
+    print(
+        "Narration content loaded "
+        "successfully:\n"
+    )
+
     print(script)
-    
