@@ -1,102 +1,152 @@
 # Project Reels
 
-An automated Python pipeline that transforms raw stories into ready-to-upload:
+An automated AI-powered content pipeline that transforms raw stories into ready-to-upload:
 
-- YouTube long-form videos  
+- YouTube Long Videos  
 - YouTube Shorts  
-- TikTok videos  
+- TikTok Videos  
 - Instagram Reels  
 
-using fully local AI narration, subtitles, gameplay footage, story overlays, thumbnails, and automated post-processing.
+using fully local narration, subtitles, gameplay footage, dynamic overlays, premium thumbnails, metadata logging, and automated cleanup.
 
-This project automates the repetitive workflow of short-form storytelling content creation without paid APIs.
+Built to automate short-form storytelling content creation workflows completely locally.
 
 ---
 
 # Features
 
-## Text Processing
+## Smart Story Processing
 
-✅ Reads stories from `input/raw_script.txt`  
-✅ Cleans formatting issues automatically  
+✅ Reads raw stories from `input/raw_script.txt`  
+
+✅ Automatically splits raw stories into:
+
+- Title  
+- Story Content  
+
+and stores them inside:
+
+```bash
+input/script.json
+```
+
+Example:
+
+```json
+{
+  "title": "AITA for exposing my cheating boyfriend?",
+  "content": "He lied to me for months..."
+}
+```
+
+---
+
+## Text Cleaning
+
+✅ Fixes punctuation issues  
+✅ Removes formatting problems  
 ✅ Optional grammar correction using LanguageTool  
-✅ Validates script length before processing  
-✅ Saves cleaned output to `input/script.txt`  
+✅ Cleans title and content separately  
 
 ---
 
 ## AI Narration
 
-✅ Uses Kokoro ONNX for fully local narration  
+✅ Uses Kokoro ONNX for local narration generation  
+
 ✅ Random voice selection  
+
 ✅ No paid APIs required  
-✅ Memory cleanup after generation  
+
+---
+
+## Subtitle Generation
+
+✅ Uses faster-whisper for subtitle generation  
+
+✅ Burns subtitles directly into final videos  
+
+---
+
+## Video Pipeline
+
+✅ Random gameplay selection  
+
+✅ Random clip extraction  
+
+✅ Auto vertical formatting (9:16)  
+
+✅ Audio/video merging  
+
+✅ Dynamic story title overlays  
+
+✅ Short splitting  
+
+---
+
+## Story Overlay System
+
+Uses only story titles for cleaner retention:
+
+```text
+🔥 STORY TIME
+AITA for exposing my cheating boyfriend?
+```
+
+No more large text blocks.
+
+---
+
+## Premium Thumbnail Generation
+
+✅ Mobile-friendly vertical thumbnails  
+
+✅ Dynamic white title cards  
+
+✅ Auto-generated:
+
+- PART 1  
+- PART 2  
+- FULL STORY  
+
+✅ Premium custom background design  
 
 ---
 
 ## Audio Processing
 
 ✅ Random background music selection  
-✅ Automatic volume balancing  
-✅ Music looping  
-✅ Audio trimming  
+
+✅ Audio balancing  
+
+✅ Audio looping  
 
 ---
 
-## Video Processing
+## Metadata Logging
 
-✅ Random gameplay selection  
-✅ Random clip extraction  
-✅ Horizontal → vertical conversion (9:16)  
-✅ Audio/video merging  
-✅ Story overlay generation  
-✅ Subtitle burning  
-✅ Automatic Shorts splitting  
+Every run stores:
 
----
-
-# Story Overlay System
-
-Automatically generates:
-
-✅ Rounded story cards  
-✅ Shadow effects  
-✅ Random fonts  
-✅ Hook previews  
-✅ Optimized positioning above subtitles  
-
----
-
-# Subtitles
-
-✅ Uses faster-whisper for subtitle generation  
-✅ Automatically burns subtitles into final videos  
-
----
-
-# Thumbnail Generation
-
-✅ Auto-generates thumbnails for every run  
-
----
-
-# Metadata Logging
-
-Every run saves:
-
-- gameplay used  
-- music used  
-- font used  
-- voice used  
-- script length  
+- selected gameplay  
+- selected music  
+- selected voice  
+- selected font  
 - runtime metadata  
 
 ---
 
-# Cleanup System
+## Cleanup System
 
-✅ Removes temporary files automatically  
-✅ Handles failures gracefully  
+Automatically removes:
+
+- narration files  
+- subtitles  
+- temporary clips  
+- overlay assets  
+- script.json  
+- raw script text  
+
+after pipeline completion.
 
 ---
 
@@ -105,35 +155,20 @@ Every run saves:
 ```text
 raw_script.txt
       ↓
-Script Cleaning
+Split Raw Script
       ↓
-Script Validation
+script.json
       ↓
-Random Voice Selection
+Clean Title + Content
       ↓
-Kokoro Narration
-      ↓
-Random Music Selection
-      ↓
-Audio Mixing
+Title → Overlay + Thumbnail
+Content → Narration + Subtitles
       ↓
 Random Gameplay Selection
       ↓
-Random Clip Extraction
-      ↓
-Vertical Conversion
-      ↓
-Audio + Video Merge
-      ↓
-Story Overlay
-      ↓
-Subtitle Generation
-      ↓
-Subtitle Burning
+Audio/Video Merge
       ↓
 Short Generation
-      ↓
-Thumbnail Generation
       ↓
 Metadata Logging
       ↓
@@ -148,13 +183,14 @@ Cleanup
 Project_Reels/
 │
 ├── assets/
+│   ├── backgrounds/
 │   ├── fonts/
 │   ├── gameplay/
 │   └── music/
 │
 ├── input/
 │   ├── raw_script.txt
-│   ├── script.txt
+│   ├── script.json
 │   └── config.json
 │
 ├── models/
@@ -163,16 +199,11 @@ Project_Reels/
 │
 ├── output/
 │   └── run_timestamp/
-│       ├── long/
-│       ├── shorts/
-│       ├── thumbnail.png
-│       └── metadata.json
 │
 ├── temp/
 │
 ├── src/
 │   ├── audio/
-│   ├── pipeline/
 │   ├── subtitles/
 │   ├── text/
 │   ├── utils/
@@ -186,7 +217,7 @@ Project_Reels/
 
 # Installation
 
-Clone repository:
+Clone repo:
 
 ```bash
 git clone https://github.com/anshuman-upadhyay/Project_Reels.git
@@ -210,7 +241,7 @@ pip install -r requirements.txt
 
 # Model Setup
 
-Download Kokoro ONNX model files from:
+Download Kokoro model files:
 
 https://github.com/thewh1teagle/kokoro-onnx
 
@@ -222,26 +253,34 @@ models/
 
 Required files:
 
-- `kokoro-v1.0.onnx`
-- `voices-v1.0.bin`
+- kokoro-v1.0.onnx  
+- voices-v1.0.bin  
 
 ---
 
 # Required Inputs
 
-## Stories
+## Story
 
-Paste story content inside:
+Paste story into:
 
 ```bash
 input/raw_script.txt
 ```
 
+Format:
+
+```text
+AITA for exposing my cheating boyfriend?
+
+He lied to me for months...
+```
+
 ---
 
-## Gameplay Videos
+## Gameplay Clips
 
-Add gameplay footage inside:
+Add gameplay videos inside:
 
 ```bash
 assets/gameplay/
@@ -249,14 +288,13 @@ assets/gameplay/
 
 Examples:
 
-- Minecraft parkour  
+- Minecraft Parkour  
 - Subway Surfers  
-- Satisfying clips  
-- Loopable gameplay footage  
+- Satisfying videos  
 
 ---
 
-## Background Music
+## Music
 
 Add music files inside:
 
@@ -286,30 +324,18 @@ python main.py
 
 # Output
 
-Each run creates:
+Each run generates:
+
+- Long-form video  
+- Shorts  
+- Thumbnails  
+- Metadata logs  
+
+inside:
 
 ```bash
 output/run_timestamp/
 ```
-
-Containing:
-
-- final long-form video  
-- short-form clips  
-- thumbnail  
-- metadata logs  
-
----
-
-# Future V2 Ideas
-
-- Reddit scraping automation  
-- Automated upload system  
-- Better thumbnail generation  
-- AI-generated hooks  
-- Multi-language narration  
-- Analytics dashboard  
-- Multi-niche expansion  
 
 ---
 
@@ -320,4 +346,14 @@ Containing:
 - Kokoro ONNX  
 - faster-whisper  
 - Pillow  
-- LanguageTool
+- LanguageTool  
+
+---
+
+# Future V2 Ideas
+
+- Reddit scraping automation  
+- Auto uploads  
+- AI hook generation  
+- Analytics dashboard  
+- Multi-niche expansion  
